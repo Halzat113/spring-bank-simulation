@@ -4,11 +4,13 @@ import com.example.enums.AccountType;
 import com.example.exception.AccountOwnershipException;
 import com.example.exception.BadRequestException;
 import com.example.exception.BalanceNotSufficientException;
+import com.example.exception.UnderConstructionException;
 import com.example.model.Account;
 import com.example.model.Transaction;
 import com.example.repository.AccountRepository;
 import com.example.repository.TransactionRepository;
 import com.example.service.TransactionService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -18,6 +20,8 @@ import java.util.UUID;
 
 @Component
 public class TransactionServiceImpl implements TransactionService {
+    @Value("${under_construction}")
+    private boolean underConstruction;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     public TransactionServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository){
@@ -26,15 +30,18 @@ public class TransactionServiceImpl implements TransactionService {
     }
     @Override
     public Transaction makeTransaction(Account sender, Account receiver, BigDecimal amount, Date creationDate, String message) {
+        if (!underConstruction) {
+            validateAccount(sender, receiver);
+            checkAccountOwnership(sender, receiver);
+            executeBalanceAndUpdateIfRequired(amount, sender, receiver);
 
-        validateAccount(sender,receiver);
-        checkAccountOwnership(sender,receiver);
-        executeBalanceAndUpdateIfRequired(amount, sender, receiver);
+            Transaction transaction = Transaction.builder().sender(UUID.randomUUID()).receiver(UUID.randomUUID())
+                    .amount(amount).createDate(creationDate).message(message).build();
 
-        Transaction transaction = Transaction.builder().sender(UUID.randomUUID()).receiver(UUID.randomUUID())
-                .amount(amount).createDate(creationDate).message(message).build();
-
-        return transactionRepository.save(transaction);
+            return transactionRepository.save(transaction);
+        }else {
+            throw new UnderConstructionException("App is under construction, please try again later.");
+        }
     }
 
     private void validateAccount(Account sender,Account receiver) {
@@ -64,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
             sender.setBalance(sender.getBalance().subtract(amount));
             receiver.setBalance(receiver.getBalance().add(amount));
         }else {
-            throw new BalanceNotSufficientException("Balance is not enough for this transfer");
+            throw new BalanceNotSufficientException("Balance is not enough for this transaction");
         }
     }
 
@@ -91,8 +98,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> findAllTransaction() {
-        return null;
+       return transactionRepository.findAll();
     }
-
-
 }

@@ -9,21 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class AccountRepository {
-    public static List<Account> accountList = new ArrayList<>();
-
-    public Account save(Account account){
-        accountList.add(account);
-        return account;
-    }
-
-    public List<Account> findAll(){
-        return accountList;
-    }
-
+public class AccountRepository extends CrudAbstract<Account>{
 
     public Account findById(UUID id) {
-        return accountList.stream().
+        return findAll().stream().
                 filter(account -> account.getId().equals(id)).
                 findAny().orElseThrow(() -> new RecordNotFoundException("Record not found in the database"));
     }
