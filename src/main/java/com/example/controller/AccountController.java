@@ -6,23 +6,19 @@ import com.example.repository.AccountRepository;
 import com.example.service.AccountService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 @Controller
 public class AccountController {
 
     private final AccountService accountService;
-    private final AccountRepository accountRepository;
 
-    public AccountController(AccountService accountService,AccountRepository accountRepository) {
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
-        this.accountRepository = accountRepository;
     }
 
     @GetMapping(value={"/index","/"})
@@ -32,16 +28,29 @@ public class AccountController {
     }
 
     @GetMapping("/create")
-    public String createAccount(Model model){
+    public String getCreateAccount(Model model){
         model.addAttribute("account",Account.builder().build());
         model.addAttribute("accountTypes",AccountType.values());
         return "/account/create-account";
     }
 
     @PostMapping("/create")
-    public String insertAccount(@ModelAttribute("account")Account account){
+    public String createAccount(@ModelAttribute("account")Account account){
         accountService.createNewAccount(account.getBalance(),new Date(),account.getAccountType(), account.getUserId());
         return "redirect:/index";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteAccount(@PathVariable UUID id){
+        accountService.deleteAccount(id);
+        return "redirect:/index";
+    }
+
+    @GetMapping("/activate/{id}")
+    public String activateAccount(@PathVariable UUID id){
+        accountService.activateAccount(id);
+        return "redirect:/index";
+
     }
 
 }
