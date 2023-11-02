@@ -8,9 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Controller
 public class TransactionController {
@@ -36,5 +38,15 @@ public class TransactionController {
         Account receiver = accountService.findAccountById(transaction.getReceiver());
         transactionService.makeTransaction(sender,receiver,transaction.getAmount(),new Date(),transaction.getMessage());
         return "redirect:/make-transfer";
+    }
+
+    @GetMapping("/transaction/{id}")
+    public String transactions(@PathVariable("id") UUID id, Model model){
+        System.out.println(id);
+        //get the list od transactions based on id and return as a model attribute
+        //TASK- complete the method(service and repository)
+        //findTransactionListById
+        model.addAttribute("transactions",transactionService.findTransactionListById(id));
+        return "/transaction/transactions";
     }
 }

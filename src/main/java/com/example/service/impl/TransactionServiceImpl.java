@@ -35,7 +35,7 @@ public class TransactionServiceImpl implements TransactionService {
             checkAccountOwnership(sender, receiver);
             executeBalanceAndUpdateIfRequired(amount, sender, receiver);
 
-            Transaction transaction = Transaction.builder().sender(UUID.randomUUID()).receiver(UUID.randomUUID())
+            Transaction transaction = Transaction.builder().sender(sender.getId()).receiver(receiver.getId())
                     .amount(amount).createDate(creationDate).message(message).build();
 
             return transactionRepository.save(transaction);
@@ -104,5 +104,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<Transaction> last10Transactions() {
         return transactionRepository.findLast10Transactions();
+    }
+
+    @Override
+    public List<Transaction> findTransactionListById(UUID id) {
+        return transactionRepository.findTransactionsById(id);
     }
 }
