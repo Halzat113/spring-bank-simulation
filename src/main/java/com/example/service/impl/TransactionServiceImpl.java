@@ -2,32 +2,38 @@ package com.example.service.impl;
 
 import com.example.dto.AccountDto;
 import com.example.dto.TransactionDto;
+import com.example.entity.Transaction;
 import com.example.enums.AccountType;
 import com.example.exception.AccountOwnershipException;
 import com.example.exception.BadRequestException;
 import com.example.exception.BalanceNotSufficientException;
 import com.example.exception.UnderConstructionException;
+import com.example.mapper.MapperUtil;
 import com.example.repository.AccountRepository;
 import com.example.repository.TransactionRepository;
 import com.example.service.TransactionService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
-@Component
+@Service
 public class TransactionServiceImpl implements TransactionService {
     @Value("${under_construction}")
     private boolean underConstruction;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    public TransactionServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository){
+    private final MapperUtil mapperUtil;
+
+    public TransactionServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository, MapperUtil mapperUtil) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.mapperUtil = mapperUtil;
     }
+
     @Override
     public TransactionDto makeTransaction(AccountDto sender, AccountDto receiver, BigDecimal amount, Date creationDate, String message) {
         if (!underConstruction) {
@@ -37,7 +43,8 @@ public class TransactionServiceImpl implements TransactionService {
 
             TransactionDto transactionDto = new TransactionDto(sender,receiver,amount,message,creationDate);
 
-            return transactionRepository.save(transactionDto);
+            transactionRepository.save(mapperUtil.convert(transactionDto,new Transaction()));
+            return transactionDto;
         }else {
             throw new UnderConstructionException("App is under construction, please try again later.");
         }
@@ -97,16 +104,22 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionDto> findAllTransaction() {
-       return transactionRepository.findAll();
+       return transactionRepository.findAll().stream()
+               .map(transaction -> mapperUtil.convert(transaction,new TransactionDto()))
+               .collect(Collectors.toList());
     }
 
     @Override
     public List<TransactionDto> last10Transactions() {
-        return transactionRepository.findLast10Transactions();
+        return transactionRepository.findLast10Transactions().stream()
+                .map(transaction ->mapperUtil.convert(transaction,new TransactionDto()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<TransactionDto> findTransactionListById(UUID id) {
-        return transactionRepository.findTransactionsById(id);
+    public List<TransactionDto> findTransactionListById(Long id) {
+        return transactionRepository.findTransactionsById(id).stream()
+                .map(transaction -> mapperUtil.convert(transaction,new TransactionDto()))
+                .collect(Collectors.toList());
     }
 }

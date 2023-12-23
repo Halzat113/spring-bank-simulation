@@ -1,6 +1,10 @@
 package com.example.repository;
 
 import com.example.dto.TransactionDto;
+import com.example.entity.Account;
+import com.example.entity.Transaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -8,16 +12,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Component
-public class TransactionRepository extends CrudAbstract<TransactionDto>{
+public interface TransactionRepository extends JpaRepository<Transaction,Long> {
+    //TODO limit 10 needs to be fixed (having error by doing 'limit by 10')
+    @Query("SELECT t from Transaction t order by t.createDate")
+    List<Transaction> findLast10Transactions();
 
-    public List<TransactionDto>findLast10Transactions(){
-       return findAll().stream()
-                       .sorted(Comparator.comparing(TransactionDto::getCreateDate)
-                               .reversed()).limit(10).collect(Collectors.toList());
-    }
-
-    public List<TransactionDto> findTransactionsById(UUID id){
-        return findAll().stream().filter(t->t.getSender().equals(id)||t.getReceiver().equals(id)).collect(Collectors.toList());
-    }
+    @Query("SELECT t from Transaction t where t.sender='?1' or t.receiver='?1'")
+    List<Transaction> findTransactionsById(Long id);
 }

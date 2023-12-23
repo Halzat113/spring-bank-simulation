@@ -48,7 +48,7 @@ public class TransactionController {
     }
 
     @GetMapping("/transaction/{id}")
-    public String transactions(@PathVariable("id") UUID id, Model model){
+    public String transactions(@PathVariable("id") Long id, Model model){
         System.out.println(id);
         //get the list od transactions based on id and return as a model attribute
         //TASK- complete the method(service and repository)
