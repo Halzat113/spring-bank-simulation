@@ -1,19 +1,15 @@
 package com.example.controller;
 
 import com.example.enums.AccountType;
-import com.example.model.Account;
-import com.example.repository.AccountRepository;
+import com.example.dto.AccountDto;
 import com.example.service.AccountService;
-import com.example.service.TransactionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.Date;
-import java.util.UUID;
 
 @Controller
 public class AccountController {
@@ -32,29 +28,29 @@ public class AccountController {
 
     @GetMapping("/create")
     public String getCreateAccount(Model model){
-        model.addAttribute("account",Account.builder().build());
+        model.addAttribute("account", new AccountDto());
         model.addAttribute("accountTypes",AccountType.values());
         return "/account/create-account";
     }
 
     @PostMapping("/create")
-    public String createAccount(@Valid @ModelAttribute("account")Account account, BindingResult bindingResult, Model model){
+    public String createAccount(@Valid @ModelAttribute("account") AccountDto accountDto, BindingResult bindingResult, Model model){
         if(bindingResult.hasErrors()){
             model.addAttribute("accountTypes",AccountType.values());
             return "account/create-account";
         }
-        accountService.createNewAccount(account.getBalance(),new Date(),account.getAccountType(), account.getUserId());
+        accountService.createNewAccount(accountDto.getBalance(),new Date(), accountDto.getAccountType(), accountDto.getUserId());
         return "redirect:/index";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteAccount(@PathVariable UUID id){
+    public String deleteAccount(@PathVariable Long id){
         accountService.deleteAccount(id);
         return "redirect:/index";
     }
 
     @GetMapping("/activate/{id}")
-    public String activateAccount(@PathVariable UUID id){
+    public String activateAccount(@PathVariable Long id){
         accountService.activateAccount(id);
         return "redirect:/index";
 

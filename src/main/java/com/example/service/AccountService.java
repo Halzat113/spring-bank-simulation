@@ -1,22 +1,21 @@
 package com.example.service;
 
+import com.example.dto.AccountDto;
 import com.example.enums.AccountType;
-import com.example.model.Account;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public interface AccountService {
-    Account createNewAccount(BigDecimal balance, Date creationDate, AccountType accountType, Long userId);
-    List<Account> listAllAccount();
+    AccountDto createNewAccount(BigDecimal balance, Date creationDate, AccountType accountType, Long userId);
+    List<AccountDto> listAllAccount();
 
-    List<Account> listAllActiveAccount();
+    List<AccountDto> listAllActiveAccount();
 
-    void deleteAccount(UUID id);
+    void deleteAccount(Long id);
 
-    void activateAccount(UUID id);
+    void activateAccount(Long id);
 
-    Account findAccountById(UUID id);
+    AccountDto findAccountById(Long id);
 }

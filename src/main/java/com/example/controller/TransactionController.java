@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.model.Account;
-import com.example.model.Transaction;
+import com.example.dto.AccountDto;
+import com.example.dto.TransactionDto;
 import com.example.service.AccountService;
 import com.example.service.TransactionService;
 import org.springframework.stereotype.Controller;
@@ -28,22 +28,22 @@ public class TransactionController {
 
     @GetMapping("/make-transfer")
     public String getMakeTransfer(Model model){
-        model.addAttribute("transaction", Transaction.builder().build());
+        model.addAttribute("transaction", new TransactionDto());
         model.addAttribute("accounts",accountService.listAllActiveAccount());
         model.addAttribute("lastTransactions",transactionService.last10Transactions());
         return "transaction/make-transfer";
     }
 
     @PostMapping("/make-transaction")
-    public String makeTransaction(@Valid @ModelAttribute("transaction")Transaction transaction, BindingResult bindingResult, Model model){
+    public String makeTransaction(@Valid @ModelAttribute("transaction") TransactionDto transactionDto, BindingResult bindingResult, Model model){
         if (bindingResult.hasErrors()){
             model.addAttribute("accounts",accountService.listAllAccount());
             model.addAttribute("lastTransactions",transactionService.last10Transactions());
             return "transaction/make-transfer";
         }
-        Account sender = accountService.findAccountById(transaction.getSender());
-        Account receiver = accountService.findAccountById(transaction.getReceiver());
-        transactionService.makeTransaction(sender,receiver,transaction.getAmount(),new Date(),transaction.getMessage());
+        AccountDto sender = accountService.findAccountById(transactionDto.getSender().getId());
+        AccountDto receiver = accountService.findAccountById(transactionDto.getReceiver().getId());
+        transactionService.makeTransaction(sender,receiver, transactionDto.getAmount(),new Date(), transactionDto.getMessage());
         return "redirect:/make-transfer";
     }
 

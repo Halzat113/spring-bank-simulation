@@ -34,17 +34,17 @@
           </tr>
           </thead>
           <tbody>
-          <tr th:each="account:${accountList}">
-            <td th:text="${account.userId}"></td>
-            <td th:text="${account.accountStatus}"></td>
-            <td th:text="${account.balance}"></td>
-            <td th:text="${account.accountType}"></td>
-            <td th:text="${account.creationDate}"></td>
+          <tr th:each="accountDto:${accountList}">
+            <td th:text="${accountDto.userId}"></td>
+            <td th:text="${accountDto.accountStatus}"></td>
+            <td th:text="${accountDto.balance}"></td>
+            <td th:text="${accountDto.accountType}"></td>
+            <td th:text="${accountDto.creationDate}"></td>
             <td>
-             <a th:if="${account.accountStatus.name().equals('ACTIVE')}" class="btn btn-danger" th:href="@{/delete/{id}(id=${account.id})}">Delete</a>
-             <a th:if="${account.accountStatus.name().equals('DELETED')}" class="btn btn-success" th:href="@{/activate/{id}(id=${account.id})}">Activate Account</a>
+             <a th:if="${accountDto.accountStatus.name().equals('ACTIVE')}" class="btn btn-danger" th:href="@{/delete/{id}(id=${accountDto.id})}">Delete</a>
+             <a th:if="${accountDto.accountStatus.name().equals('DELETED')}" class="btn btn-success" th:href="@{/activate/{id}(id=${accountDto.id})}">Activate Account</a>
             </td>
-            <td><a th:if="${account.accountStatus.name().equals('ACTIVE')}" class="btn btn-success" th:href="@{/transaction/{id}(id=${account.id})}">Account Transaction</a></td>
+            <td><a th:if="${accountDto.accountStatus.name().equals('ACTIVE')}" class="btn btn-success" th:href="@{/transactionDto/{id}(id=${accountDto.id})}">Account Transaction</a></td>
           </tr>
           </tbody>
         </table>

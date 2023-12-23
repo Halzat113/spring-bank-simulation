@@ -1,12 +1,12 @@
 package com.example.service.impl;
 
+import com.example.dto.AccountDto;
+import com.example.dto.TransactionDto;
 import com.example.enums.AccountType;
 import com.example.exception.AccountOwnershipException;
 import com.example.exception.BadRequestException;
 import com.example.exception.BalanceNotSufficientException;
 import com.example.exception.UnderConstructionException;
-import com.example.model.Account;
-import com.example.model.Transaction;
 import com.example.repository.AccountRepository;
 import com.example.repository.TransactionRepository;
 import com.example.service.TransactionService;
@@ -29,22 +29,21 @@ public class TransactionServiceImpl implements TransactionService {
         this.transactionRepository = transactionRepository;
     }
     @Override
-    public Transaction makeTransaction(Account sender, Account receiver, BigDecimal amount, Date creationDate, String message) {
+    public TransactionDto makeTransaction(AccountDto sender, AccountDto receiver, BigDecimal amount, Date creationDate, String message) {
         if (!underConstruction) {
             validateAccount(sender, receiver);
             checkAccountOwnership(sender, receiver);
             executeBalanceAndUpdateIfRequired(amount, sender, receiver);
 
-            Transaction transaction = Transaction.builder().sender(sender.getId()).receiver(receiver.getId())
-                    .amount(amount).createDate(creationDate).message(message).build();
+            TransactionDto transactionDto = new TransactionDto(sender,receiver,amount,message,creationDate);
 
-            return transactionRepository.save(transaction);
+            return transactionRepository.save(transactionDto);
         }else {
             throw new UnderConstructionException("App is under construction, please try again later.");
         }
     }
 
-    private void validateAccount(Account sender,Account receiver) {
+    private void validateAccount(AccountDto sender, AccountDto receiver) {
         /*
             -if any of the account is null
             -if account ids are the same(same account)
@@ -65,7 +64,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
-    private void executeBalanceAndUpdateIfRequired(BigDecimal amount, Account sender,Account receiver) {
+    private void executeBalanceAndUpdateIfRequired(BigDecimal amount, AccountDto sender, AccountDto receiver) {
         if(checkSenderBalance(sender,amount)){
             //update sender and receiver balance
             sender.setBalance(sender.getBalance().subtract(amount));
@@ -75,11 +74,11 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private boolean checkSenderBalance(Account sender, BigDecimal amount) {
+    private boolean checkSenderBalance(AccountDto sender, BigDecimal amount) {
         return sender.getBalance().compareTo(amount)>=0;
     }
 
-    public void checkAccountOwnership(Account sender,Account receiver){
+    public void checkAccountOwnership(AccountDto sender, AccountDto receiver){
         /*
         write an if statement that checks if one of the account is saving,
         and user of sender or receiver is not the same, throw AccountOwnershipException
@@ -92,22 +91,22 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private void findAccountById(UUID id){
+    private void findAccountById(Long id){
       accountRepository.findById(id);
     }
 
     @Override
-    public List<Transaction> findAllTransaction() {
+    public List<TransactionDto> findAllTransaction() {
        return transactionRepository.findAll();
     }
 
     @Override
-    public List<Transaction> last10Transactions() {
+    public List<TransactionDto> last10Transactions() {
         return transactionRepository.findLast10Transactions();
     }
 
     @Override
-    public List<Transaction> findTransactionListById(UUID id) {
+    public List<TransactionDto> findTransactionListById(UUID id) {
         return transactionRepository.findTransactionsById(id);
     }
 }

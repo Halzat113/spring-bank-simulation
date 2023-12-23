@@ -1,7 +1,7 @@
 package com.example.service;
 
-import com.example.model.Account;
-import com.example.model.Transaction;
+import com.example.dto.AccountDto;
+import com.example.dto.TransactionDto;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -10,10 +10,10 @@ import java.util.UUID;
 
 public interface TransactionService {
 
-    Transaction makeTransaction(Account sender, Account receiver, BigDecimal amount, Date creationDate, String message);
-    List<Transaction> findAllTransaction();
+    TransactionDto makeTransaction(AccountDto sender, AccountDto receiver, BigDecimal amount, Date creationDate, String message);
+    List<TransactionDto> findAllTransaction();
 
-    List<Transaction> last10Transactions();
+    List<TransactionDto> last10Transactions();
 
-    List<Transaction> findTransactionListById(UUID id);
+    List<TransactionDto> findTransactionListById(UUID id);
 }
