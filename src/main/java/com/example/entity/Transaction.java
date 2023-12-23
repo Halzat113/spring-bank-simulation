@@ -16,9 +16,9 @@ import java.util.Date;
 @Table(name = "transactions")
 @Entity
 public class Transaction extends BaseEntity{
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Account sender;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Account receiver;
     private BigDecimal amount;
     private String message;

@@ -13,6 +13,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 
 public class AccountDto {
     private Long id;

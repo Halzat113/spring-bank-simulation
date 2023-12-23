@@ -64,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto findAccountById(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow();
+        Account account = accountRepository.findById(id).get();
         return mapperUtil.convert(account,new AccountDto());
     }
 }

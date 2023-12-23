@@ -23,6 +23,7 @@ public class Account extends BaseEntity{
     private AccountType accountType;
     @Column(columnDefinition = "DATE")
     private Date creationDate;
+    private Long userId;
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
 }

@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.UUID;
-
 @Controller
 public class TransactionController {
     TransactionService transactionService;
@@ -43,6 +41,8 @@ public class TransactionController {
         }
         AccountDto sender = accountService.findAccountById(transactionDto.getSender().getId());
         AccountDto receiver = accountService.findAccountById(transactionDto.getReceiver().getId());
+        System.out.println(sender);
+        System.out.println(receiver);
         transactionService.makeTransaction(sender,receiver, transactionDto.getAmount(),new Date(), transactionDto.getMessage());
         return "redirect:/make-transfer";
     }
