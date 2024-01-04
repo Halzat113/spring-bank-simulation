@@ -20,7 +20,7 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping(value={"/index","/"})
+    @GetMapping(value={"/index"})
     public String getIndexPage (Model model){
         model.addAttribute("accountList",accountService.listAllAccount());
         return "account/index";
