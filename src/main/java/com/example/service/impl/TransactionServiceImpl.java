@@ -9,8 +9,8 @@ import com.example.exception.BadRequestException;
 import com.example.exception.BalanceNotSufficientException;
 import com.example.exception.UnderConstructionException;
 import com.example.mapper.MapperUtil;
-import com.example.repository.AccountRepository;
 import com.example.repository.TransactionRepository;
+import com.example.service.AccountService;
 import com.example.service.TransactionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 public class TransactionServiceImpl implements TransactionService {
     @Value("${under_construction}")
     private boolean underConstruction;
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final TransactionRepository transactionRepository;
     private final MapperUtil mapperUtil;
 
-    public TransactionServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository, MapperUtil mapperUtil) {
-        this.accountRepository = accountRepository;
+    public TransactionServiceImpl(AccountService accountService, TransactionRepository transactionRepository, MapperUtil mapperUtil) {
+        this.accountService = accountService;
         this.transactionRepository = transactionRepository;
         this.mapperUtil = mapperUtil;
     }
@@ -49,7 +49,6 @@ public class TransactionServiceImpl implements TransactionService {
             throw new UnderConstructionException("App is under construction, please try again later.");
         }
     }
-
     private void validateAccount(AccountDto sender, AccountDto receiver) {
         /*
             -if any of the account is null
@@ -63,12 +62,8 @@ public class TransactionServiceImpl implements TransactionService {
             throw new BadRequestException("sender and receiver's id cannot be the same");
         }
 
-        findAccountById(sender.getId());
-        findAccountById(receiver.getId());
-
-
-
-
+        accountService.findAccountById(sender.getId());
+        accountService.findAccountById(receiver.getId());
     }
 
     private void executeBalanceAndUpdateIfRequired(BigDecimal amount, AccountDto sender, AccountDto receiver) {
@@ -76,6 +71,14 @@ public class TransactionServiceImpl implements TransactionService {
             //update sender and receiver balance
             sender.setBalance(sender.getBalance().subtract(amount));
             receiver.setBalance(receiver.getBalance().add(amount));
+
+//            AccountDto senderAcc = accountService.findAccountById(sender.getId());
+//            senderAcc.setBalance(sender.getBalance());
+            accountService.updateAccount(sender);
+
+//            AccountDto receiverAcc = accountService.findAccountById(receiver.getId());
+//            receiverAcc.setBalance(receiver.getBalance());
+            accountService.updateAccount(receiver);
         }else {
             throw new BalanceNotSufficientException("Balance is not enough for this transaction");
         }
@@ -96,10 +99,6 @@ public class TransactionServiceImpl implements TransactionService {
                 throw new AccountOwnershipException("user must be the same for sender and receiver");
             }
         }
-    }
-
-    private void findAccountById(Long id){
-      accountRepository.findById(id);
     }
 
     @Override

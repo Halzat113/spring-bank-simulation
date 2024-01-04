@@ -21,7 +21,6 @@ public class AccountDtoConvertor implements Converter<String, AccountDto> {
         if(source.equals("")){
             return null;
         }
-        System.out.println(accountService.findAccountById(Long.parseLong(source)));
        return accountService.findAccountById(Long.parseLong(source));
     }
 }

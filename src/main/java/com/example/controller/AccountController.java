@@ -28,18 +28,18 @@ public class AccountController {
 
     @GetMapping("/create")
     public String getCreateAccount(Model model){
-        model.addAttribute("account", new AccountDto());
+        model.addAttribute("accountDto", new AccountDto());
         model.addAttribute("accountTypes",AccountType.values());
         return "/account/create-account";
     }
 
     @PostMapping("/create")
-    public String createAccount(@Valid @ModelAttribute("account") AccountDto accountDto, BindingResult bindingResult, Model model){
+    public String createAccount(@Valid @ModelAttribute("accountDto") AccountDto accountDto, BindingResult bindingResult, Model model){
         if(bindingResult.hasErrors()){
             model.addAttribute("accountTypes",AccountType.values());
             return "account/create-account";
         }
-        accountService.createNewAccount(accountDto.getBalance(),new Date(), accountDto.getAccountType(), accountDto.getUserId());
+        accountService.createNewAccount(accountDto);
         return "redirect:/index";
     }
 
